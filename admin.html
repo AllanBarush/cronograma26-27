@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow"><title>Admin · Cronograma RiskMathics</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0B141C;color:#E6EDF2;font-size:14px}
+.bar{position:sticky;top:0;z-index:10;background:#0A2136;border-bottom:1px solid #1E2F3B;padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.bar h1{font-size:15px;letter-spacing:1.5px;text-transform:uppercase;color:#3BBFB8;font-weight:700}
+.bar .sp{flex:1}
+.btn{background:#0D8A8A;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
+.btn:hover{background:#0a6e6e}.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;border:1px solid #2C4150;color:#9DB3B8}
+.btn.gold{background:#C89B3C}.btn.gold:hover{background:#a87f28}
+input,select{background:#12212D;border:1px solid #243747;color:#E6EDF2;border-radius:5px;padding:8px 10px;font-size:13px;font-family:inherit;width:100%}
+input:focus,select:focus{outline:none;border-color:#3BBFB8}
+.wrap{padding:20px 22px;max-width:1500px;margin:0 auto}
+.gate{max-width:380px;margin:14vh auto;background:#12212D;border:1px solid #243747;border-radius:10px;padding:36px 32px;text-align:center}
+.gate h2{font-size:19px;margin-bottom:6px}.gate p{color:#8A98A4;font-size:13px;margin-bottom:22px}
+.gate input{margin-bottom:14px;text-align:center;letter-spacing:2px}
+.msg{font-size:12.5px;padding:6px 12px;border-radius:6px;display:none}
+.msg.ok{background:#0f3d2e;color:#7fe0b0;display:inline-block}
+.msg.err{background:#4a1420;color:#f0a0b0;display:inline-block}
+.search{margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.search input{max-width:340px}
+.stat{color:#8A98A4;font-size:12.5px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:#8A98A4;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;font-weight:600;padding:8px 8px;position:sticky;top:53px;background:#0B141C;border-bottom:1px solid #243747}
+td{padding:5px 6px;border-bottom:1px solid #172530;vertical-align:middle}
+tr.dirty td{background:#132a1f}
+tr.off{opacity:.42}
+td.slug{color:#63D2CB;font-family:ui-monospace,monospace;font-size:11.5px;white-space:nowrap}
+.w-name input{min-width:230px}
+.num input{max-width:100px;text-align:right;font-variant-numeric:tabular-nums}
+.w-date input,.w-ses input{max-width:110px}.w-meta input{min-width:150px}
+.cur select{max-width:74px}
+.chk{width:18px;height:18px;accent-color:#3BBFB8;cursor:pointer}
+a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
+.foot{position:fixed;bottom:0;left:0;right:0;background:#0A2136;border-top:1px solid #1E2F3B;padding:12px 22px;display:flex;align-items:center;gap:16px}
+.foot .sp{flex:1}
+.dirty-n{color:#C89B3C;font-weight:700}
+.hint{color:#6A7682;font-size:11.5px}
+</style></head><body>
+
+<div id="gate" class="gate">
+ <h2>Cronograma RiskMathics</h2>
+ <p>Panel de administración. Escribe tu clave para entrar.</p>
+ <input id="key" type="password" placeholder="clave" autocomplete="off">
+ <button class="btn" style="width:100%" onclick="login()">Entrar</button>
+ <div id="gmsg" class="msg err" style="margin-top:14px"></div>
+</div>
+
+<div id="app" style="display:none">
+ <div class="bar">
+  <h1>Cronograma · Admin</h1>
+  <span id="stat" class="stat"></span>
+  <span class="sp"></span>
+  <button class="btn gold" onclick="addRow()">+ Programa</button>
+  <a class="btn ghost" href="https://cronograma26-27.riskmathicslabs.com" target="_blank" rel="noopener">Ver página</a>
+  <button class="btn ghost" onclick="logout()">Salir</button>
+ </div>
+ <div class="wrap" style="padding-bottom:80px">
+  <div class="search">
+   <input id="q" placeholder="Buscar programa…" oninput="draw()">
+   <span id="cnt" class="stat"></span>
+   <span class="hint">Doble columna de precio: <b>Mostrar</b> = lo que ve el cliente · <b>Cobro</b> = lo que carga Stripe/PayPal.</span>
+  </div>
+  <table><thead><tr>
+   <th></th><th>Programa</th><th>Precio mostrar</th><th>Precio cobro</th><th>Div</th><th>Fecha inicio</th><th>Ses</th><th>Detalle</th><th>Sección</th><th>Activo</th><th>Slug</th>
+  </tr></thead><tbody id="tb"></tbody></table>
+ </div>
+ <div class="foot">
+  <span>Cambios sin guardar: <span id="dn" class="dirty-n">0</span></span>
+  <span id="fmsg" class="msg"></span>
+  <span class="sp"></span>
+  <button class="btn ghost" onclick="load()">Descartar</button>
+  <button id="save" class="btn" onclick="save()">Guardar y publicar</button>
+ </div>
+</div>
+
+<script>
+var FN="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/cronograma-cat";
+var KEY="", DATA=[], DIRTY={}, NEW=[];
+function $(id){return document.getElementById(id);}
+function login(){
+ KEY=$("key").value.trim(); if(!KEY)return;
+ fetch(FN+"?action=admin&key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){
+  if(d&&d.ok){sessionStorage.setItem("ck",KEY);$("gate").style.display="none";$("app").style.display="block";DATA=d.programas;draw();stat();}
+  else{$("gmsg").textContent="Clave incorrecta.";$("gmsg").style.display="inline-block";}
+ }).catch(function(){$("gmsg").textContent="Error de conexión.";$("gmsg").style.display="inline-block";});
+}
+function logout(){sessionStorage.removeItem("ck");location.reload();}
+function load(){DIRTY={};NEW=[];fetch(FN+"?action=admin&key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){if(d.ok){DATA=d.programas;draw();stat();}});}
+function stat(){$("stat").textContent=DATA.length+" programas · "+DATA.filter(function(r){return r.activo;}).length+" activos";}
+function mark(slug){DIRTY[slug]=1;$("dn").textContent=Object.keys(DIRTY).length;var tr=document.querySelector('tr[data-s="'+slug+'"]');if(tr)tr.classList.add("dirty");}
+function edit(slug,field,val,el){var r=DATA.find(function(x){return x.slug===slug;});if(!r)return;if(field==="activo"){r[field]=el.checked;el.closest("tr").classList.toggle("off",!el.checked);}else{r[field]=val;}mark(slug);}
+function row(r){
+ var off=r.activo?"":" off";
+ return '<tr data-s="'+r.slug+'" class="'+off+'">'+
+  '<td><a class="ver" href="https://'+r.slug+'.riskmathicslabs.com" target="_blank" rel="noopener" title="Ver landing">↗</a></td>'+
+  '<td class="w-name"><input value="'+att(r.name)+'" onchange="edit(\''+r.slug+'\',\'name\',this.value)"></td>'+
+  '<td class="num"><input type="number" value="'+(r.precio_display||0)+'" onchange="edit(\''+r.slug+'\',\'precio_display\',this.value)"></td>'+
+  '<td class="num"><input type="number" value="'+(r.precio_cobro||0)+'" onchange="edit(\''+r.slug+'\',\'precio_cobro\',this.value)"></td>'+
+  '<td class="cur"><select onchange="edit(\''+r.slug+'\',\'cur\',this.value)"><option'+(r.cur==="MXN"?" selected":"")+'>MXN</option><option'+(r.cur==="USD"?" selected":"")+'>USD</option></select></td>'+
+  '<td class="w-date"><input value="'+att(r.fecha)+'" placeholder="7 Sep 2026" onchange="edit(\''+r.slug+'\',\'fecha\',this.value)"></td>'+
+  '<td class="w-ses"><input value="'+att(r.ses)+'" onchange="edit(\''+r.slug+'\',\'ses\',this.value)"></td>'+
+  '<td class="w-meta"><input value="'+att(r.meta)+'" onchange="edit(\''+r.slug+'\',\'meta\',this.value)"></td>'+
+  '<td class="w-meta"><input value="'+att(r.seccion)+'" onchange="edit(\''+r.slug+'\',\'seccion\',this.value)"></td>'+
+  '<td style="text-align:center"><input type="checkbox" class="chk" '+(r.activo?"checked":"")+' onchange="edit(\''+r.slug+'\',\'activo\',null,this)"></td>'+
+  '<td class="slug">'+r.slug+'</td></tr>';
+}
+function att(s){return String(s==null?"":s).replace(/"/g,"&quot;");}
+function draw(){
+ var q=($("q")?$("q").value:"").toLowerCase();
+ var list=DATA.filter(function(r){return !q||(r.name+" "+r.slug+" "+r.seccion).toLowerCase().indexOf(q)>=0;});
+ $("tb").innerHTML=list.map(row).join("");
+ if($("cnt"))$("cnt").textContent=list.length+" en pantalla";
+}
+function addRow(){
+ var slug=prompt("Slug del nuevo programa (sin espacios, ej: cuanticaintermedio):");
+ if(!slug)return; slug=slug.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+ if(!slug||DATA.find(function(x){return x.slug===slug;})){alert("Slug vacío o ya existe.");return;}
+ var r={slug:slug,name:"Nuevo programa",seccion:"std::Mercados, riesgo y regulación",meta:"",cur:"MXN",precio_display:0,precio_cobro:0,fecha:"",ses:"",extra1:"",extra2:"",activo:true,_new:true};
+ DATA.unshift(r);NEW.push(slug);mark(slug);$("q").value="";draw();stat();
+ alert("Programa agregado a la tabla. Edita sus datos y dale 'Guardar y publicar'.\\nNOTA: la LANDING de este slug (página, Stripe, PayPal) se crea aparte; avísale a tu asistente el slug.");
+}
+function save(){
+ var changed=Object.keys(DIRTY); if(!changed.length){flash("No hay cambios.","");return;}
+ var rows=changed.map(function(s){return DATA.find(function(x){return x.slug===s;});});
+ var news=rows.filter(function(r){return r._new;});
+ $("save").disabled=true;flash("Guardando…","");
+ var chain=Promise.resolve();
+ news.forEach(function(r){chain=chain.then(function(){return post({action:"add",key:KEY,row:r});});});
+ var upd=rows.filter(function(r){return !r._new;});
+ chain=chain.then(function(){if(upd.length)return post({action:"save",key:KEY,rows:upd});}).then(function(){
+  DIRTY={};NEW=[];$("dn").textContent="0";$("save").disabled=false;
+  document.querySelectorAll("tr.dirty").forEach(function(t){t.classList.remove("dirty");});
+  flash("Guardado y publicado. La página ya muestra los cambios.","ok");
+ }).catch(function(e){$("save").disabled=false;flash("Error al guardar: "+e,"err");});
+}
+function post(b){return fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(function(r){return r.json();}).then(function(d){if(!d.ok)throw (d.error||"error");return d;});}
+function flash(t,cls){var m=$("fmsg");m.textContent=t;m.className="msg "+(cls||"");m.style.display=t?"inline-block":"none";if(cls==="ok")setTimeout(function(){m.style.display="none";},4000);}
+var saved=sessionStorage.getItem("ck");
+if(saved){$("key").value=saved;login();}
+</script></body></html>
