@@ -46,6 +46,19 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
 .foot .sp{flex:1}
 .dirty-n{color:#C89B3C;font-weight:700}
 .hint{color:#6A7682;font-size:11.5px}
+#forge{position:fixed;inset:0;background:rgba(4,10,16,.82);z-index:50;display:none;overflow:auto}
+#forge .box{max-width:880px;margin:5vh auto;background:#0F1B26;border:1px solid #243747;border-radius:12px;padding:30px 34px}
+#forge h2{font-size:17px;color:#9B7BD8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+#forge .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-top:16px}
+#forge .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px 16px;margin-top:14px}
+#forge label{display:block;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:#8A98A4;margin-bottom:4px}
+#forge textarea{background:#12212D;border:1px solid #243747;color:#E6EDF2;border-radius:5px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit;min-height:84px}
+#forge .colors{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap}
+#forge input[type=color]{width:52px;height:34px;padding:2px;cursor:pointer}
+#forge .res{margin-top:16px;font-size:13px;line-height:1.9;background:#0f2d20;border:1px solid #1e5c40;border-radius:8px;padding:14px 18px;display:none}
+#forge .res a{color:#7fe0b0}
+#forge .err2{margin-top:16px;font-size:13px;background:#3d1420;border:1px solid #6c2438;border-radius:8px;padding:12px 16px;color:#f0a0b0;display:none}
+@media(max-width:760px){#forge .g2,#forge .g4{grid-template-columns:1fr}}
 </style></head><body>
 
 <div id="gate" class="gate">
@@ -62,6 +75,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
   <span id="stat" class="stat"></span>
   <span class="sp"></span>
   <button class="btn gold" onclick="addRow()">+ Programa</button>
+  <button class="btn" style="background:#7A4FB8" onclick="openForge()">+ Curso desde PDF</button>
   <a class="btn ghost" href="https://cronograma26-27.riskmathicslabs.com" target="_blank" rel="noopener">Ver página</a>
   <button class="btn ghost" onclick="logout()">Salir</button>
  </div>
@@ -195,4 +209,128 @@ document.addEventListener("click",function(e){
 });
 var saved=sessionStorage.getItem("ck");
 if(saved){$("key").value=saved;login();}
+</script>
+<div id="forge"><div class="box">
+ <h2>Nuevo curso desde PDF</h2>
+ <p class="hint">Sube el folleto: se pre-llenan los campos (revisa y corrige lo que haga falta) y al crear se genera TODO: fila en catalogo, liga Stripe, cobro PayPal, landing con su subdominio y candado.</p>
+ <div style="margin-top:14px"><input type="file" id="fpdf" accept=".pdf" onchange="forgeParse(this.files[0])"></div>
+ <div id="fstat" class="hint" style="margin-top:8px"></div>
+ <div class="g2">
+  <div><label>Nombre del curso</label><input id="f_name" oninput="forgeSlug()"></div>
+  <div><label>Slug (subdominio)</label><input id="f_slug"></div>
+  <div><label>Subtitulo</label><input id="f_subt"></div>
+  <div><label>Audiencia</label><input id="f_aud" value="Profesionales del sector financiero"></div>
+ </div>
+ <div class="g4">
+  <div><label>Divisa</label><select id="f_cur"><option>MXN</option><option>USD</option></select></div>
+  <div><label>Precio (sin IVA)</label><input id="f_precio" type="number" min="0"></div>
+  <div><label>Sesiones</label><input id="f_ses" type="number" min="0"></div>
+  <div><label>Horas</label><input id="f_horas" type="number" min="0" step="any"></div>
+ </div>
+ <div class="g4">
+  <div><label>Fecha inicio</label><input id="f_fecha" placeholder="7 Sep 2026"></div>
+  <div><label>Formato</label><input id="f_fmt" value="Virtual Live"></div>
+  <div style="grid-column:span 2"><label>Seccion del catalogo</label><input id="f_sec" value="std::Mercados, riesgo y regulaci&oacute;n"></div>
+ </div>
+ <div style="margin-top:14px"><label>Temario (un tema por renglon; opcional "Titulo. | descripcion")</label><textarea id="f_tem"></textarea></div>
+ <div style="margin-top:14px"><label>Faculty (uno por renglon: Nombre | Cargo | Bio)</label><textarea id="f_fac" style="min-height:56px"></textarea></div>
+ <div class="colors">
+  <div><label>Fondo</label><input type="color" id="c_bg" value="#0A2136"></div>
+  <div><label>Acento</label><input type="color" id="c_acc" value="#3BBFB8"></div>
+  <div><label>Botones</label><input type="color" id="c_deep" value="#0D8A8A"></div>
+  <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;letter-spacing:0;cursor:pointer"><input type="checkbox" id="f_pdfup" checked style="width:16px;height:16px"> Subir el PDF como folleto descargable</label>
+ </div>
+ <div style="display:flex;gap:12px;margin-top:22px">
+  <button class="btn" style="background:#7A4FB8" id="f_go" onclick="forgeCreate()">Crear curso completo</button>
+  <button class="btn ghost" onclick="document.getElementById('forge').style.display='none'">Cancelar</button>
+ </div>
+ <div id="f_res" class="res"></div>
+ <div id="f_err" class="err2"></div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script>
+var FORGE="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/curso-forge";
+var PDF_B64=null;
+function openForge(){document.getElementById("forge").style.display="block";}
+function forgeSlug(){var n=$("f_name").value.toLowerCase();$("f_slug").value=n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").slice(0,30);}
+function forgeParse(file){
+ if(!file)return;
+ $("fstat").textContent="Leyendo PDF...";
+ var fr=new FileReader();
+ fr.onload=function(){
+  PDF_B64=fr.result.split(",")[1];
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js";
+  var raw=atob(PDF_B64),arr=new Uint8Array(raw.length);
+  for(var z=0;z<raw.length;z++)arr[z]=raw.charCodeAt(z);
+  pdfjsLib.getDocument({data:arr}).promise.then(async function(doc){
+   var txt="";
+   for(var p=1;p<=doc.numPages;p++){var pg=await doc.getPage(p);var tc=await pg.getTextContent();txt+=tc.items.map(function(it){return it.str;}).join("\n")+"\n";}
+   forgeFill(txt,file.name);
+   try{var pg1=await doc.getPage(1);var vp=pg1.getViewport({scale:0.35});var cv=document.createElement("canvas");cv.width=vp.width;cv.height=vp.height;
+    await pg1.render({canvasContext:cv.getContext("2d"),viewport:vp}).promise;forgeColors(cv);}catch(e){}
+   $("fstat").textContent="PDF leido ("+doc.numPages+" paginas). Revisa los campos y corrige lo que haga falta.";
+  }).catch(function(e){$("fstat").textContent="No pude leer el PDF: "+e;});
+ };
+ fr.readAsDataURL(file);
+}
+function forgeFill(txt,fname){
+ var m;
+ if(!$("f_name").value){$("f_name").value=fname.replace(/\.pdf$/i,"").replace(/[_-]+/g," ").replace(/\d+$/,"").trim();forgeSlug();}
+ m=txt.match(/\$\s*([\d,]{4,})\s*(MXN|USD)?\s*(?:\+|m[a\u00e1]s)?\s*(?:IVA|TAX)/i);
+ if(m){$("f_precio").value=m[1].replace(/,/g,"");if(m[2])$("f_cur").value=m[2].toUpperCase();}
+ if(/USD/.test(txt)&&!/MXN/.test(txt))$("f_cur").value="USD";
+ m=txt.match(/(\d+)\s*Sesiones?\s*\(?\s*([\d.]+)\s*horas/i);
+ if(m){$("f_ses").value=m[1];$("f_horas").value=m[2];}
+ else{m=txt.match(/(\d+)\s*(?:sesiones|clases)/i);if(m)$("f_ses").value=m[1];m=txt.match(/([\d.]+)\s*horas/i);if(m)$("f_horas").value=m[1];}
+ if(/VIRTUAL\s*LIVE/i.test(txt))$("f_fmt").value="Virtual Live";else if(/PRESENCIAL/i.test(txt))$("f_fmt").value="Presencial";
+ m=txt.match(/(ENERO|FEBRERO|MARZO|ABRIL|MAYO|JUNIO|JULIO|AGOSTO|SEPTIEMBRE|OCTUBRE|NOVIEMBRE|DICIEMBRE)\s*(20\d\d)/i);
+ if(m){var MES={ENERO:"Ene",FEBRERO:"Feb",MARZO:"Mar",ABRIL:"Abr",MAYO:"May",JUNIO:"Jun",JULIO:"Jul",AGOSTO:"Ago",SEPTIEMBRE:"Sep",OCTUBRE:"Oct",NOVIEMBRE:"Nov",DICIEMBRE:"Dic"};$("f_fecha").value=(MES[m[1].toUpperCase()]||m[1])+" "+m[2];}
+ var ti=txt.search(/TEMARIO/i);
+ if(ti>=0){
+  var chunk=txt.slice(ti,ti+4000).split(/CALENDARIO|FORMAS DE PAGO|POL[I\u00cd]TICAS/i)[0];
+  var lines=chunk.split(/\n/).map(function(s){return s.trim();}).filter(Boolean);
+  var items=[],cur="";
+  lines.forEach(function(l){
+   if(/^\d+[.)]\s/.test(l)||/^[\u25ca\u2022\u00b7]\s?/.test(l)){if(cur)items.push(cur);cur=l.replace(/^\d+[.)]\s*/,"").replace(/^[\u25ca\u2022\u00b7]\s?/,"");}
+   else if(cur&&l.length>2&&!/^TEMARIO/i.test(l)){cur+=" "+l;}
+  });
+  if(cur)items.push(cur);
+  $("f_tem").value=items.slice(0,14).join("\n");
+ }
+}
+function forgeColors(cv){
+ try{
+  var ctx=cv.getContext("2d"),d=ctx.getImageData(0,0,cv.width,cv.height).data,cnt={};
+  for(var i=0;i<d.length;i+=16){var r=d[i]&0xF0,g=d[i+1]&0xF0,b=d[i+2]&0xF0;var k=r+","+g+","+b;cnt[k]=(cnt[k]||0)+1;}
+  var arr=Object.keys(cnt).map(function(k){var p=k.split(",").map(Number);return{r:p[0],g:p[1],b:p[2],n:cnt[k]};}).sort(function(a,b){return b.n-a.n;});
+  function lum(c){return .299*c.r+.587*c.g+.114*c.b;}
+  function sat(c){var mx=Math.max(c.r,c.g,c.b),mn=Math.min(c.r,c.g,c.b);return mx-mn;}
+  function hx(c){return "#"+[c.r,c.g,c.b].map(function(v){return ("0"+v.toString(16)).slice(-2);}).join("");}
+  var bg=arr.find(function(c){return lum(c)<70;});
+  var acc=arr.find(function(c){return sat(c)>60&&lum(c)>55&&lum(c)<210;});
+  var deep=arr.find(function(c){return sat(c)>40&&lum(c)>25&&lum(c)<100&&(!acc||hx(c)!==hx(acc));});
+  if(bg)$("c_bg").value=hx(bg); if(acc)$("c_acc").value=hx(acc); if(deep)$("c_deep").value=hx(deep);
+ }catch(e){}
+}
+function forgeCreate(){
+ var c={slug:$("f_slug").value.trim(),name:$("f_name").value.trim(),subtitle:$("f_subt").value.trim(),
+  audiencia:$("f_aud").value.trim(),cur:$("f_cur").value,precio:Number($("f_precio").value),
+  fecha:$("f_fecha").value.trim(),ses:$("f_ses").value,horas:$("f_horas").value,formato:$("f_fmt").value.trim(),
+  seccion:$("f_sec").value.trim(),
+  temario:$("f_tem").value.split("\n").map(function(l){var p=l.split("|");return p.length>1?{t:p[0].trim(),d:p.slice(1).join("|").trim()}:{t:"",d:l.trim()};}).filter(function(x){return x.d;}),
+  faculty:$("f_fac").value.split("\n").map(function(l){var p=l.split("|");return{nombre:(p[0]||"").trim(),cargo:(p[1]||"").trim(),bio:(p[2]||"").trim()};}).filter(function(f){return f.nombre;}),
+  colors:{bg:$("c_bg").value,acc:$("c_acc").value,deep:$("c_deep").value}};
+ if(!c.slug||!c.name||!c.precio){alert("Faltan slug, nombre o precio.");return;}
+ if($("f_pdfup").checked&&PDF_B64&&PDF_B64.length<9000000)c.folleto_b64=PDF_B64;
+ $("f_go").disabled=true;$("f_go").textContent="Creando (30-60 seg)...";
+ $("f_res").style.display="none";$("f_err").style.display="none";
+ fetch(FORGE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create",key:KEY,curso:c})})
+ .then(function(r){return r.json();}).then(function(d){
+  $("f_go").disabled=false;$("f_go").textContent="Crear curso completo";
+  if(d.ok){
+   $("f_res").innerHTML="<b>Curso creado.</b><br>Landing: <a href=\""+d.landing+"\" target=\"_blank\">"+d.landing+"</a><br>Stripe: <a href=\""+d.stripe+"\" target=\"_blank\">"+d.stripe+"</a><br>PayPal: activo por catalogo<br><span class=\"hint\">"+(d.nota||"")+"</span>";
+   $("f_res").style.display="block";load();
+  }else{$("f_err").textContent="Error: "+(d.error||"desconocido");$("f_err").style.display="block";}
+ }).catch(function(e){$("f_go").disabled=false;$("f_go").textContent="Crear curso completo";$("f_err").textContent="Error de red: "+e;$("f_err").style.display="block";});
+}
 </script></body></html>
