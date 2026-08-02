@@ -76,6 +76,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
   <span class="sp"></span>
   <button class="btn gold" onclick="addRow()">+ Programa</button>
   <button class="btn" style="background:#7A4FB8" onclick="openForge()">+ Curso desde PDF</button>
+  <button class="btn ghost" onclick="openStats()">Estadísticas</button>
   <a class="btn ghost" href="https://cronograma26-27.riskmathicslabs.com" target="_blank" rel="noopener">Ver página</a>
   <button class="btn ghost" onclick="logout()">Salir</button>
  </div>
@@ -88,6 +89,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
   <table><thead><tr id="hdr">
    <th></th>
    <th class="s" data-f="name">Programa<span class="ar"></span></th>
+   <th class="s" data-f="tipo">Tipo<span class="ar"></span></th>
    <th class="s" data-f="precio_display">Precio mostrar<span class="ar"></span></th>
    <th class="s" data-f="precio_cobro">Precio cobro<span class="ar"></span></th>
    <th class="s" data-f="cur">Div<span class="ar"></span></th>
@@ -114,6 +116,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
 var FN="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/cronograma-cat";
 var KEY="", DATA=[], DIRTY={}, NEW=[];
 var SORT={f:"name",d:1};
+var TIPOS=["Curso","Diplomado","Executive","Seminario","Conferencia","Encuentro","Certificación"];
 var NUMF={precio_display:1,precio_cobro:1,ses:1,horas:1};
 var MESN={ene:1,feb:2,mar:3,abr:4,may:5,jun:6,jul:7,ago:8,sep:9,oct:10,nov:11,dic:12};
 function $(id){return document.getElementById(id);}
@@ -156,6 +159,7 @@ function row(r){
  return '<tr data-s="'+r.slug+'" class="'+off+'">'+
   '<td><a class="ver" href="'+url(r.slug)+'" target="_blank" rel="noopener" title="Abrir landing">↗</a></td>'+
   '<td class="w-name"><input value="'+att(r.name)+'" onchange="edit(\''+r.slug+'\',\'name\',this.value)"></td>'+
+  '<td><select style="max-width:118px" onchange="edit(\''+r.slug+'\',\'tipo\',this.value)">'+TIPOS.map(function(o){return '<option'+((r.tipo||"Curso")===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td>'+
   '<td class="num"><input type="number" min="0" step="any" value="'+(r.precio_display||0)+'" onchange="edit(\''+r.slug+'\',\'precio_display\',this.value)"></td>'+
   '<td class="num"><input type="number" min="0" step="any" value="'+(r.precio_cobro||0)+'" onchange="edit(\''+r.slug+'\',\'precio_cobro\',this.value)"></td>'+
   '<td class="cur"><select onchange="edit(\''+r.slug+'\',\'cur\',this.value)"><option'+(r.cur==="MXN"?" selected":"")+'>MXN</option><option'+(r.cur==="USD"?" selected":"")+'>USD</option></select></td>'+
@@ -230,7 +234,8 @@ if(saved){$("key").value=saved;login();}
  <div class="g4">
   <div><label>Fecha inicio</label><input id="f_fecha" placeholder="7 Sep 2026"></div>
   <div><label>Formato</label><input id="f_fmt" value="Virtual Live"></div>
-  <div style="grid-column:span 2"><label>Seccion del catalogo</label><input id="f_sec" value="std::Mercados, riesgo y regulaci&oacute;n"></div>
+  <div><label>Tipo</label><select id="f_tipo"><option>Curso</option><option>Diplomado</option><option>Executive</option><option>Seminario</option><option>Conferencia</option><option>Encuentro</option><option>Certificaci&oacute;n</option></select></div>
+  <div><label>Seccion del catalogo</label><input id="f_sec" value="std::Mercados, riesgo y regulaci&oacute;n"></div>
  </div>
  <div style="margin-top:14px"><label>Temario (un tema por renglon; opcional "Titulo. | descripcion")</label><textarea id="f_tem"></textarea></div>
  <div style="margin-top:14px"><label>Faculty (uno por renglon: Nombre | Cargo | Bio)</label><textarea id="f_fac" style="min-height:56px"></textarea></div>
@@ -355,7 +360,7 @@ function forgeApplyPalette(hist){
  paintTarget();
 }
 function forgeCreate(){
- var c={slug:$("f_slug").value.trim(),name:$("f_name").value.trim(),subtitle:$("f_subt").value.trim(),
+ var c={slug:$("f_slug").value.trim(),name:$("f_name").value.trim(),subtitle:$("f_subt").value.trim(),tipo:$("f_tipo").value,
   audiencia:$("f_aud").value.trim(),cur:$("f_cur").value,precio:Number($("f_precio").value),
   fecha:$("f_fecha").value.trim(),ses:$("f_ses").value,horas:$("f_horas").value,formato:$("f_fmt").value.trim(),
   seccion:$("f_sec").value.trim(),
@@ -376,4 +381,32 @@ function forgeCreate(){
   }else{$("f_err").textContent="Error: "+(d.error||"desconocido");$("f_err").style.display="block";}
  }).catch(function(e){$("f_go").disabled=false;$("f_go").textContent="Crear curso completo";$("f_err").textContent="Error de red: "+e;$("f_err").style.display="block";});
 }
-</script></body></html>
+function openStats(){
+ $("statsm").style.display="block";
+ $("st_body").innerHTML='<p class="hint">Cargando estadísticas…</p>';
+ fetch("https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/rm-hit?action=stats&key="+encodeURIComponent(KEY))
+ .then(function(r){return r.json();}).then(function(d){
+  if(!d.ok){$("st_body").innerHTML='<p class="hint">Error: '+(d.error||"")+'</p>';return;}
+  var byS={};DATA.forEach(function(r){byS[r.slug]=r.name;});
+  var rows=(d.stats||[]).sort(function(a,b){return (b.view||0)-(a.view||0);});
+  var h='<table style="font-size:12.5px"><thead><tr><th>Programa</th><th style="text-align:right">Vistas</th><th style="text-align:right">Vistas 7d</th><th style="text-align:right">Clic Stripe</th><th style="text-align:right">Clic PayPal</th><th style="text-align:right">Ventas Stripe</th></tr></thead><tbody>';
+  rows.forEach(function(s){
+   h+='<tr><td>'+((byS[s.slug]||s.slug))+'</td><td style="text-align:right">'+(s.view||0)+'</td><td style="text-align:right">'+(s.view7||0)+'</td><td style="text-align:right">'+(s.stripe||0)+'</td><td style="text-align:right">'+(s.paypal||0)+'</td><td style="text-align:right;color:#7fe0b0;font-weight:700">'+(s.ventas||0)+'</td></tr>';
+  });
+  h+='</tbody></table><p class="hint" style="margin-top:12px">'+(d.nota||"")+' · El conteo empieza hoy: las visitas anteriores a la instalación del contador no existen.</p>';
+  if(!rows.length)h='<p class="hint">Aún no hay datos. El contador acaba de instalarse; empezará a llenarse con las visitas de hoy en adelante.</p>';
+  $("st_body").innerHTML=h;
+ }).catch(function(e){$("st_body").innerHTML='<p class="hint">Error de red: '+e+'</p>';});
+}
+</script>
+<div id="statsm" style="position:fixed;inset:0;background:rgba(4,10,16,.82);z-index:60;display:none;overflow:auto">
+ <div style="max-width:920px;margin:5vh auto;background:#0F1B26;border:1px solid #243747;border-radius:12px;padding:30px 34px">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+   <h2 style="font-size:17px;color:#3BBFB8;letter-spacing:1px;text-transform:uppercase">Estadísticas de landings</h2>
+   <span style="flex:1"></span>
+   <button class="btn ghost" onclick="openStats()">Actualizar</button>
+   <button class="btn ghost" onclick="document.getElementById('statsm').style.display='none'">Cerrar</button>
+  </div>
+  <div id="st_body"></div>
+ </div>
+</div></body></html>
