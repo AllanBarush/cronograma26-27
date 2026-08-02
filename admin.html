@@ -86,7 +86,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
   <div class="search">
    <input id="q" placeholder="Buscar programa…" oninput="draw()">
    <span id="cnt" class="stat"></span>
-   <span class="hint">Clic en un encabezado para ordenar (flechitas). <b>Mostrar</b> = precio que ve el cliente · <b>Cobro</b> = lo que carga Stripe/PayPal.</span>
+   <span class="hint">Clic en un encabezado para ordenar (flechitas). <b>Mostrar</b> = precio sin IVA que ve el cliente · <b>Cobro</b> = Mostrar + 16% IVA (se calcula y sincroniza solo: liga Stripe nueva, PayPal y landing).</span>
   </div>
   <table><thead><tr id="hdr">
    <th></th>
@@ -148,6 +148,16 @@ function logout(){sessionStorage.removeItem("ck");location.reload();}
 function load(){DIRTY={};NEW=[];$("dn").textContent="0";fetch(FN+"?action=admin&key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){if(d.ok){DATA=d.programas;draw();stat();}});}
 function stat(){$("stat").textContent=DATA.length+" programas · "+DATA.filter(function(r){return r.activo;}).length+" activos";}
 function mark(slug){DIRTY[slug]=1;$("dn").textContent=Object.keys(DIRTY).length;var tr=document.querySelector('tr[data-s="'+slug+'"]');if(tr)tr.classList.add("dirty");}
+function editDisp(slug,el){
+ var r=DATA.find(function(x){return x.slug===slug;});if(!r)return;
+ r.precio_display=el.value;
+ var v=Number(el.value)||0;
+ var cobro=Math.round(v*1.16*100)/100;
+ r.precio_cobro=cobro;
+ var tr=el.closest("tr");var inputs=tr.querySelectorAll("td.num input");
+ if(inputs[1])inputs[1].value=cobro;
+ mark(slug);
+}
 function edit(slug,field,val,el){var r=DATA.find(function(x){return x.slug===slug;});if(!r)return;if(field==="activo"){r[field]=el.checked;el.closest("tr").classList.toggle("off",!el.checked);}else{r[field]=val;}mark(slug);}
 function url(s){return "https://"+s+".riskmathicslabs.com";}
 function copiar(s,btn){
@@ -165,7 +175,7 @@ function row(r){
   '<td><a class="ver" href="'+url(r.slug)+'" target="_blank" rel="noopener" title="Abrir landing">↗</a></td>'+
   '<td class="w-name"><input value="'+att(r.name)+'" onchange="edit(\''+r.slug+'\',\'name\',this.value)"></td>'+
   '<td><select style="max-width:118px" onchange="edit(\''+r.slug+'\',\'tipo\',this.value)">'+TIPOS.map(function(o){return '<option'+((r.tipo||"Curso")===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td>'+
-  '<td class="num"><input type="number" min="0" step="any" value="'+(r.precio_display||0)+'" onchange="edit(\''+r.slug+'\',\'precio_display\',this.value)"></td>'+
+  '<td class="num"><input type="number" min="0" step="any" value="'+(r.precio_display||0)+'" onchange="editDisp(\''+r.slug+'\',this)"></td>'+
   '<td class="num"><input type="number" min="0" step="any" value="'+(r.precio_cobro||0)+'" onchange="edit(\''+r.slug+'\',\'precio_cobro\',this.value)"></td>'+
   '<td class="cur"><select onchange="edit(\''+r.slug+'\',\'cur\',this.value)"><option'+(r.cur==="MXN"?" selected":"")+'>MXN</option><option'+(r.cur==="USD"?" selected":"")+'>USD</option></select></td>'+
   '<td class="w-date"><input value="'+att(r.fecha)+'" placeholder="7 Sep 2026" onchange="edit(\''+r.slug+'\',\'fecha\',this.value)"></td>'+
@@ -206,10 +216,12 @@ function save(){
  chain=chain.then(function(){if(upd.length)return post({action:"save",key:KEY,rows:upd});}).then(function(){
   DIRTY={};NEW=[];$("dn").textContent="0";$("save").disabled=false;
   document.querySelectorAll("tr.dirty").forEach(function(t){t.classList.remove("dirty");});
-  flash("Guardado y publicado. La página ya muestra los cambios.","ok");
+  var extra="";try{var sy=(arguments&&null)||null;}catch(_){}
+  if(window._SYNC&&window._SYNC.length){extra=" Ligas regeneradas: "+window._SYNC.map(function(s){return s.slug+(s.error?" (ERROR)":"");}).join(", ")+".";window._SYNC=null;}
+  flash("Guardado y publicado."+extra,"ok");
  }).catch(function(e){$("save").disabled=false;flash("Error al guardar: "+e,"err");});
 }
-function post(b){return fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(function(r){return r.json();}).then(function(d){if(!d.ok)throw (d.error||"error");return d;});}
+function post(b){return fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(function(r){return r.json();}).then(function(d){if(!d.ok)throw (d.error||"error");if(d.sincronizados&&d.sincronizados.length)window._SYNC=d.sincronizados;return d;});}
 function flash(t,cls){var m=$("fmsg");m.textContent=t;m.className="msg "+(cls||"");m.style.display=t?"inline-block":"none";if(cls==="ok")setTimeout(function(){m.style.display="none";},4000);}
 document.addEventListener("click",function(e){
  var th=e.target.closest?e.target.closest("th.s"):null; if(!th)return;
