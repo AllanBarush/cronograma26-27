@@ -239,6 +239,7 @@ if(saved){$("key").value=saved;login();}
   <div><label>Acento</label><input type="color" id="c_acc" value="#3BBFB8"></div>
   <div><label>Botones</label><input type="color" id="c_deep" value="#0D8A8A"></div>
   <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;letter-spacing:0;cursor:pointer"><input type="checkbox" id="f_pdfup" checked style="width:16px;height:16px"> Subir el PDF como folleto descargable</label>
+  <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;letter-spacing:0;cursor:pointer"><input type="checkbox" id="f_heroimg" checked style="width:16px;height:16px"> Usar la portada del folleto como fondo del hero</label>
  </div>
  <div style="display:flex;gap:12px;margin-top:22px">
   <button class="btn" style="background:#7A4FB8" id="f_go" onclick="forgeCreate()">Crear curso completo</button>
@@ -250,7 +251,7 @@ if(saved){$("key").value=saved;login();}
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
 <script>
 var FORGE="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/curso-forge";
-var PDF_B64=null;
+var PDF_B64=null,PORTADA_B64=null;
 function openForge(){document.getElementById("forge").style.display="block";}
 function forgeSlug(){var n=$("f_name").value.toLowerCase();$("f_slug").value=n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").slice(0,30);}
 function forgeParse(file){
@@ -267,7 +268,11 @@ function forgeParse(file){
    for(var p=1;p<=doc.numPages;p++){var pg=await doc.getPage(p);var tc=await pg.getTextContent();txt+=tc.items.map(function(it){return it.str;}).join("\n")+"\n";}
    forgeFill(txt,file.name);
    try{var pg1=await doc.getPage(1);var vp=pg1.getViewport({scale:0.35});var cv=document.createElement("canvas");cv.width=vp.width;cv.height=vp.height;
-    await pg1.render({canvasContext:cv.getContext("2d"),viewport:vp}).promise;forgeColors(cv);}catch(e){}
+    await pg1.render({canvasContext:cv.getContext("2d"),viewport:vp}).promise;forgeColors(cv);
+    var sc=Math.min(1.6,1400/pg1.getViewport({scale:1}).width);var vp2=pg1.getViewport({scale:sc});
+    var cv2=document.createElement("canvas");cv2.width=vp2.width;cv2.height=vp2.height;
+    await pg1.render({canvasContext:cv2.getContext("2d"),viewport:vp2}).promise;
+    PORTADA_B64=cv2.toDataURL("image/jpeg",0.82).split(",")[1];}catch(e){}
    $("fstat").textContent="PDF leido ("+doc.numPages+" paginas). Revisa los campos y corrige lo que haga falta.";
   }).catch(function(e){$("fstat").textContent="No pude leer el PDF: "+e;});
  };
@@ -322,6 +327,7 @@ function forgeCreate(){
   colors:{bg:$("c_bg").value,acc:$("c_acc").value,deep:$("c_deep").value}};
  if(!c.slug||!c.name||!c.precio){alert("Faltan slug, nombre o precio.");return;}
  if($("f_pdfup").checked&&PDF_B64&&PDF_B64.length<9000000)c.folleto_b64=PDF_B64;
+ if($("f_heroimg").checked&&PORTADA_B64)c.portada_b64=PORTADA_B64;
  $("f_go").disabled=true;$("f_go").textContent="Creando (30-60 seg)...";
  $("f_res").style.display="none";$("f_err").style.display="none";
  fetch(FORGE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create",key:KEY,curso:c})})
