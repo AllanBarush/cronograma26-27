@@ -77,6 +77,8 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
   <button class="btn gold" onclick="addRow()">+ Programa</button>
   <button class="btn" style="background:#7A4FB8" onclick="openForge()">+ Curso desde PDF</button>
   <button class="btn ghost" onclick="openStats()">Estadísticas</button>
+  <button class="btn ghost" id="btnUsers" style="display:none" onclick="openUsers()">Usuarios</button>
+  <button class="btn ghost" onclick="openHelp()">Ayuda</button>
   <a class="btn ghost" href="https://cronograma26-27.riskmathicslabs.com" target="_blank" rel="noopener">Ver página</a>
   <button class="btn ghost" onclick="logout()">Salir</button>
  </div>
@@ -114,7 +116,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
 
 <script>
 var FN="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/cronograma-cat";
-var KEY="", DATA=[], DIRTY={}, NEW=[];
+var KEY="", DATA=[], DIRTY={}, NEW=[], ROL="editor", USUARIO="";
 var SORT={f:"name",d:1};
 var TIPOS=["Curso","Diplomado","Executive","Seminario","Conferencia","Encuentro","Certificación"];
 var NUMF={precio_display:1,precio_cobro:1,ses:1,horas:1};
@@ -138,7 +140,7 @@ function arrows(){
 function login(){
  KEY=$("key").value.trim(); if(!KEY)return;
  fetch(FN+"?action=admin&key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){
-  if(d&&d.ok){sessionStorage.setItem("ck",KEY);$("gate").style.display="none";$("app").style.display="block";DATA=d.programas;draw();stat();}
+  if(d&&d.ok){sessionStorage.setItem("ck",KEY);ROL=d.rol||"editor";USUARIO=d.usuario||"";if(ROL==="master")$("btnUsers").style.display="";$("gate").style.display="none";$("app").style.display="block";DATA=d.programas;draw();stat();}
   else{$("gmsg").textContent="Clave incorrecta.";$("gmsg").style.display="inline-block";}
  }).catch(function(){$("gmsg").textContent="Error de conexión.";$("gmsg").style.display="inline-block";});
 }
@@ -389,9 +391,9 @@ function openStats(){
   if(!d.ok){$("st_body").innerHTML='<p class="hint">Error: '+(d.error||"")+'</p>';return;}
   var byS={};DATA.forEach(function(r){byS[r.slug]=r.name;});
   var rows=(d.stats||[]).sort(function(a,b){return (b.view||0)-(a.view||0);});
-  var h='<table style="font-size:12.5px"><thead><tr><th>Programa</th><th style="text-align:right">Vistas</th><th style="text-align:right">Vistas 7d</th><th style="text-align:right">Clic Stripe</th><th style="text-align:right">Clic PayPal</th><th style="text-align:right">Ventas Stripe</th></tr></thead><tbody>';
+  var h='<table style="font-size:12.5px"><thead><tr><th>Programa</th><th style="text-align:right">Vistas</th><th style="text-align:right">Vistas 7d</th><th style="text-align:right">Clic Stripe</th><th style="text-align:right">Clic PayPal</th><th style="text-align:right">Ventas Stripe</th><th style="text-align:right">Ventas PayPal</th></tr></thead><tbody>';
   rows.forEach(function(s){
-   h+='<tr><td>'+((byS[s.slug]||s.slug))+'</td><td style="text-align:right">'+(s.view||0)+'</td><td style="text-align:right">'+(s.view7||0)+'</td><td style="text-align:right">'+(s.stripe||0)+'</td><td style="text-align:right">'+(s.paypal||0)+'</td><td style="text-align:right;color:#7fe0b0;font-weight:700">'+(s.ventas||0)+'</td></tr>';
+   h+='<tr><td>'+((byS[s.slug]||s.slug))+'</td><td style="text-align:right">'+(s.view||0)+'</td><td style="text-align:right">'+(s.view7||0)+'</td><td style="text-align:right">'+(s.stripe||0)+'</td><td style="text-align:right">'+(s.paypal||0)+'</td><td style="text-align:right;color:#7fe0b0;font-weight:700">'+(s.ventas||0)+'</td><td style="text-align:right;color:#7fe0b0;font-weight:700">'+(s.ventas_pp||0)+'</td></tr>';
   });
   h+='</tbody></table><p class="hint" style="margin-top:12px">'+(d.nota||"")+' · El conteo empieza hoy: las visitas anteriores a la instalación del contador no existen.</p>';
   if(!rows.length)h='<p class="hint">Aún no hay datos. El contador acaba de instalarse; empezará a llenarse con las visitas de hoy en adelante.</p>';
@@ -409,4 +411,70 @@ function openStats(){
   </div>
   <div id="st_body"></div>
  </div>
-</div></body></html>
+</div>
+<div id="usersm" style="position:fixed;inset:0;background:rgba(4,10,16,.82);z-index:60;display:none;overflow:auto">
+ <div style="max-width:760px;margin:6vh auto;background:#0F1B26;border:1px solid #243747;border-radius:12px;padding:30px 34px">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+   <h2 style="font-size:17px;color:#C89B3C;letter-spacing:1px;text-transform:uppercase">Usuarios del panel</h2>
+   <span style="flex:1"></span>
+   <button class="btn ghost" onclick="document.getElementById('usersm').style.display='none'">Cerrar</button>
+  </div>
+  <p class="hint">Cada persona entra con SU clave. Si alguien sale del equipo, desactívala aquí y pierde el acceso al instante. Solo la clave maestra ve esta sección.</p>
+  <div style="display:flex;gap:10px;margin:16px 0;flex-wrap:wrap">
+   <input id="u_nombre" placeholder="nombre.apellido" style="max-width:220px">
+   <select id="u_rol" style="max-width:130px"><option value="editor">Editor</option><option value="master">Maestro</option></select>
+   <button class="btn gold" onclick="addUser()">Crear usuario</button>
+  </div>
+  <div id="u_new" class="msg ok" style="display:none;margin-bottom:12px"></div>
+  <div id="u_body"></div>
+ </div>
+</div>
+<div id="helpm" style="position:fixed;inset:0;background:rgba(4,10,16,.82);z-index:60;display:none;overflow:auto">
+ <div style="max-width:820px;margin:5vh auto;background:#0F1B26;border:1px solid #243747;border-radius:12px;padding:30px 34px;line-height:1.7;font-size:13.5px">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+   <h2 style="font-size:17px;color:#3BBFB8;letter-spacing:1px;text-transform:uppercase">Manual rápido del panel</h2>
+   <span style="flex:1"></span>
+   <button class="btn ghost" onclick="document.getElementById('helpm').style.display='none'">Cerrar</button>
+  </div>
+  <p style="color:#C89B3C;font-weight:700">1 · Entrar</p>
+  <p>Entra a <b>cronograma26-27.riskmathicslabs.com/admin.html</b> con TU clave personal. No la compartas: es tu firma.</p>
+  <p style="color:#C89B3C;font-weight:700;margin-top:12px">2 · Editar un curso que ya existe</p>
+  <p>Busca el curso, cambia la celda (fecha, nombre, sesiones, horas, tipo, sección) y pica <b>Guardar y publicar</b>. El catálogo público se actualiza al instante. Para esconder un curso apaga su palomita de <b>Activo</b> (nunca se borra nada). Ordena con clic en los encabezados; copia la liga de la landing con su botón.</p>
+  <p style="color:#C89B3C;font-weight:700;margin-top:12px">3 · Cambios de PRECIO (regla de oro)</p>
+  <p><b>Precio cobro</b> cambia lo que cobra PayPal al instante. Pero la liga de Stripe y el precio pintado en la landing NO cambian solos: después de cambiar un precio, avisa a Allan o a Claude para sincronizar los tres canales. Nunca dejes un precio distinto entre catálogo y landing.</p>
+  <p style="color:#C89B3C;font-weight:700;margin-top:12px">4 · Crear un curso nuevo desde PDF</p>
+  <p>Botón morado <b>+ Curso desde PDF</b> → sube el folleto → el sistema pre-llena datos, colores y portada → REVISA cada campo (precio sin IVA, divisa, fechas, temario, tipo) → <b>Crear curso completo</b>. En un minuto existe la landing con su subdominio, la liga Stripe, el cobro PayPal y la fila del catálogo. El candado (https) tarda 2 a 10 minutos en activarse: es normal.</p>
+  <p style="color:#C89B3C;font-weight:700;margin-top:12px">5 · Estadísticas</p>
+  <p>El botón <b>Estadísticas</b> muestra por curso: vistas de la landing, clics a los botones de pago y ventas reales de Stripe y PayPal. El conteo existe desde el 2 de agosto de 2026.</p>
+  <p style="color:#C89B3C;font-weight:700;margin-top:12px">Reglas de siempre</p>
+  <p>Precios SIN IVA (el display dice "+ TAX") · Slugs sin espacios ni acentos · La tipografía y el formato de cifras salen solos, no se tocan · Ante la duda, pregunta antes de guardar.</p>
+ </div>
+</div>
+<script>
+function openUsers(){
+ $("usersm").style.display="block";$("u_body").innerHTML='<p class="hint">Cargando…</p>';
+ fetch(FN+"?action=users&key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){
+  if(!d.ok){$("u_body").innerHTML='<p class="hint">'+(d.error||"error")+'</p>';return;}
+  var h='<table style="font-size:12.5px"><thead><tr><th>Usuario</th><th>Clave</th><th>Rol</th><th>Activo</th></tr></thead><tbody>';
+  (d.users||[]).forEach(function(x){
+   h+='<tr><td>'+x.usuario+'</td><td style="font-family:ui-monospace,monospace;color:#63D2CB">'+x.clave+'</td><td>'+x.rol+'</td><td><input type="checkbox" class="chk" '+(x.activo?"checked":"")+' onchange="toggleUser(\''+x.usuario+'\',this.checked)"></td></tr>';
+  });
+  h+='</tbody></table>';
+  if(!(d.users||[]).length)h='<p class="hint">Aún no hay usuarios. Crea el primero arriba.</p>';
+  $("u_body").innerHTML=h;
+ });
+}
+function addUser(){
+ var u=$("u_nombre").value.trim();if(!u){alert("Escribe el nombre de usuario.");return;}
+ fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"user_add",key:KEY,usuario:u,rol:$("u_rol").value})})
+ .then(function(r){return r.json();}).then(function(d){
+  if(d.ok){$("u_new").textContent="Usuario '"+d.usuario+"' creado. Su clave (cópiala y mándasela): "+d.clave;$("u_new").style.display="block";$("u_nombre").value="";openUsers();}
+  else alert("Error: "+(d.error||""));
+ });
+}
+function toggleUser(u,act){
+ fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"user_toggle",key:KEY,usuario:u,activo:act})})
+ .then(function(r){return r.json();}).then(function(d){if(!d.ok)alert("Error: "+(d.error||""));});
+}
+function openHelp(){$("helpm").style.display="block";}
+</script></body></html>
