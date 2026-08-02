@@ -156,6 +156,9 @@ function copiar(s,btn){
  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(done).catch(function(){prompt("Copia la liga:",u);});}
  else{prompt("Copia la liga:",u);}
 }
+var SECOPTS=[];
+function buildSecOpts(){var s={"flagship":1,"treasury":1,"cert":1,"credito":1,"serie_cro":1,"serie_cco":1,"serie_mlc":1,"serie_te":1,"eventos":1};DATA.forEach(function(r){if(r.seccion)s[r.seccion]=1;});SECOPTS=Object.keys(s).sort();}
+function secLabel(v){var L={flagship:"Programas Ejecutivos",treasury:"Treasury Academy",cert:"Certificaciones",credito:"Serie Cr\u00e9dito",serie_cro:"Serie CRO",serie_cco:"Serie CCO",serie_mlc:"Serie MLC",serie_te:"Serie Trading Economy",eventos:"Eventos"};if(L[v])return L[v];return v.indexOf("std::")===0?v.slice(5):v;}
 function row(r){
  var off=r.activo?"":" off";
  return '<tr data-s="'+r.slug+'" class="'+off+'">'+
@@ -169,13 +172,14 @@ function row(r){
   '<td class="w-ses"><input type="number" min="0" step="1" value="'+att(r.ses)+'" onchange="edit(\''+r.slug+'\',\'ses\',this.value)"></td>'+
   '<td class="w-hrs"><input type="number" min="0" step="any" value="'+att(r.horas)+'" onchange="edit(\''+r.slug+'\',\'horas\',this.value)"></td>'+
   '<td class="w-meta"><input value="'+att(r.meta)+'" onchange="edit(\''+r.slug+'\',\'meta\',this.value)"></td>'+
-  '<td class="w-meta"><input value="'+att(r.seccion)+'" onchange="edit(\''+r.slug+'\',\'seccion\',this.value)"></td>'+
+  '<td><select style="max-width:200px" onchange="edit(\''+r.slug+'\',\'seccion\',this.value)">'+SECOPTS.map(function(o){return '<option value="'+att(o)+'"'+(r.seccion===o?" selected":"")+'>'+secLabel(o)+'</option>';}).join("")+'</select></td>'+
   '<td style="text-align:center"><input type="checkbox" class="chk" '+(r.activo?"checked":"")+' onchange="edit(\''+r.slug+'\',\'activo\',null,this)"></td>'+
   '<td><button class="cop" onclick="copiar(\''+r.slug+'\',this)">Copiar liga</button></td>'+
   '<td class="slug">'+r.slug+'</td></tr>';
 }
 function att(s){return String(s==null?"":s).replace(/"/g,"&quot;");}
 function draw(){
+ buildSecOpts();
  var q=($("q")?$("q").value:"").toLowerCase();
  var list=DATA.filter(function(r){return !q||(r.name+" "+r.slug+" "+r.seccion).toLowerCase().indexOf(q)>=0;});
  list=list.slice().sort(cmp);
@@ -237,7 +241,7 @@ if(saved){$("key").value=saved;login();}
   <div><label>Fecha inicio</label><input id="f_fecha" placeholder="7 Sep 2026"></div>
   <div><label>Formato</label><input id="f_fmt" value="Virtual Live"></div>
   <div><label>Tipo</label><select id="f_tipo"><option>Curso</option><option>Diplomado</option><option>Executive</option><option>Seminario</option><option>Conferencia</option><option>Encuentro</option><option>Certificaci&oacute;n</option></select></div>
-  <div><label>Seccion del catalogo</label><input id="f_sec" value="std::Mercados, riesgo y regulaci&oacute;n"></div>
+  <div><label>Seccion del catalogo</label><select id="f_sec"></select></div>
  </div>
  <div style="margin-top:14px"><label>Temario (un tema por renglon; opcional "Titulo. | descripcion")</label><textarea id="f_tem"></textarea></div>
  <div style="margin-top:14px"><label>Faculty (uno por renglon: Nombre | Cargo | Bio)</label><textarea id="f_fac" style="min-height:56px"></textarea></div>
@@ -263,7 +267,7 @@ if(saved){$("key").value=saved;login();}
 <script>
 var FORGE="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/curso-forge";
 var PDF_B64=null,PORTADA_B64=null;
-function openForge(){document.getElementById("forge").style.display="block";}
+function openForge(){buildSecOpts();var fs=$("f_sec");fs.innerHTML=SECOPTS.map(function(o){return '<option value="'+o.replace(/"/g,"&quot;")+'"'+(o==="std::Mercados, riesgo y regulaci\u00f3n"?" selected":"")+'>'+secLabel(o)+'</option>';}).join("");document.getElementById("forge").style.display="block";}
 function forgeSlug(){var n=$("f_name").value.toLowerCase();$("f_slug").value=n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").slice(0,30);}
 function forgeParse(file){
  if(!file)return;
