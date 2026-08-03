@@ -78,6 +78,7 @@ a.ver{color:#63D2CB;text-decoration:none;font-size:15px}
   <button class="btn" style="background:#7A4FB8" onclick="openForge()">+ Curso desde PDF</button>
   <button class="btn ghost" onclick="openStats()">Estadísticas</button>
   <button class="btn ghost" id="btnUsers" style="display:none" onclick="openUsers()">Usuarios</button>
+  <button class="btn ghost" id="btnPortal" style="display:none" onclick="openPortal()">Portal</button>
   <button class="btn ghost" onclick="openHelp()">Ayuda</button>
   <a class="btn ghost" href="https://cronograma26-27.riskmathicslabs.com" target="_blank" rel="noopener">Ver página</a>
   <button class="btn ghost" onclick="logout()">Salir</button>
@@ -140,7 +141,7 @@ function arrows(){
 function login(){
  KEY=$("key").value.trim(); if(!KEY)return;
  fetch(FN+"?action=admin&key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){
-  if(d&&d.ok){sessionStorage.setItem("ck",KEY);ROL=d.rol||"editor";USUARIO=d.usuario||"";if(ROL==="master")$("btnUsers").style.display="";$("gate").style.display="none";$("app").style.display="block";DATA=d.programas;draw();stat();}
+  if(d&&d.ok){sessionStorage.setItem("ck",KEY);ROL=d.rol||"editor";USUARIO=d.usuario||"";if(ROL==="master"){$("btnUsers").style.display="";$("btnPortal").style.display="";}$("gate").style.display="none";$("app").style.display="block";DATA=d.programas;draw();stat();}
   else{$("gmsg").textContent="Clave incorrecta.";$("gmsg").style.display="inline-block";}
  }).catch(function(){$("gmsg").textContent="Error de conexión.";$("gmsg").style.display="inline-block";});
 }
@@ -491,6 +492,16 @@ function addUser(){
 function toggleUser(u,act){
  fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"user_toggle",key:KEY,usuario:u,activo:act})})
  .then(function(r){return r.json();}).then(function(d){if(!d.ok)alert("Error: "+(d.error||""));});
+}
+function openPortal(){
+ fetch(FN+"?action=data&cb="+Date.now()).then(function(r){return r.json();}).then(function(d){
+  var c=(d&&d.config)||{};
+  var ti=prompt("Título del portal:",c.titulo||"Executive Education");if(ti===null)return;
+  var tg=prompt("Tagline:",c.tagline||"Learning from the Best");if(tg===null)return;
+  var ci=prompt("Ciclo (ej. 2026-2027):",c.ciclo||"2026-2027");if(ci===null)return;
+  fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"config_save",key:KEY,config:{titulo:ti,tagline:tg,ciclo:ci}})})
+  .then(function(r){return r.json();}).then(function(x){alert(x.ok?"Portal actualizado. Refresca la página pública para verlo.":"Error: "+(x.error||""));});
+ });
 }
 function openHelp(){$("helpm").style.display="block";}
 </script></body></html>
