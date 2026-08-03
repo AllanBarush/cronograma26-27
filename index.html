@@ -155,7 +155,7 @@ const ORDEN=[["Executive","gridauto","s-exec"],["Certificación","gridauto","s-c
 const SUBGRP={serie_cro:{es:"Riesgo",en:"Risk"},serie_cco:{es:"Crédito",en:"Credit"},serie_mlc:{es:"Machine Learning & AI",en:"Machine Learning & AI"},serie_te:{es:"Economía y mercados",en:"Macro & Markets"},credito:{es:"Crédito & Financiamiento",en:"Credit & Financing"},treasury:{es:"Treasury",en:"Treasury"}};
 function T(k){return (I18N[LANG]&&I18N[LANG][k])||k;}
 function esc(s){return String(s==null?"":s).replace(/&(?!amp;|lt;|gt;)/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function fEn(f){if(LANG!=="en")return f;return String(f||"").split(" ").map(function(w){return MESEN[w]||w;}).join(" ");}
+function fEn(f){if(LANG!=="en")return f;return String(f||"").split(" ").map(function(w){var k=w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();return MESEN[k]||w;}).join(" ");}
 function money(cur,p){var n=Number(p).toLocaleString("en-US");return '<span class="price"><span class="cur">'+cur+'</span> $'+n+'<span class="iva">'+T("tax")+'</span></span>';}
 function dchip(d){return d?'<span class="date">'+T("inicia")+esc(fEn(d))+'</span>':'<span class="date soon">'+T("proxima")+'</span>';}
 function url(slug){return "https://"+slug+".riskmathicslabs.com";}
