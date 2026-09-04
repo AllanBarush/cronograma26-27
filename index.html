@@ -158,7 +158,12 @@ function esc(s){return String(s==null?"":s).replace(/&(?!amp;|lt;|gt;)/g,"&amp;"
 function fEn(f){if(LANG!=="en")return f;return String(f||"").split(" ").map(function(w){var k=w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();return MESEN[k]||w;}).join(" ");}
 function money(cur,p){var n=Number(p).toLocaleString("en-US");return '<span class="price"><span class="cur">'+cur+'</span> $'+n+'<span class="iva">'+T("tax")+'</span></span>';}
 function dchip(d){return d?'<span class="date">'+T("inicia")+esc(fEn(d))+'</span>':'<span class="date soon">'+T("proxima")+'</span>';}
-function url(slug){return "https://"+slug+".riskmathicslabs.com";}
+/* riskmathicslabs.com esta LISTADO en la Spamhaus DBL y el listado lo heredan sus
+   subdominios: enlazar una landing de ahi manda los correos a spam. Las landings se
+   mudan a riskmathics.com de una en una, conforme GitHub emite cada certificado.
+   MUDADOS dice cuales ya sirven por HTTPS en el dominio limpio. */
+var MUDADOS={"tradingeconomy": 1};
+function url(slug){return "https://"+slug+(MUDADOS[slug]?".riskmathics.com":".riskmathicslabs.com");}
 function card(r,fam){return '<a class="card '+fam+'" href="'+url(r.slug)+'" target="_blank" rel="noopener"><span class="go">&#8599;</span><h3 class="cname">'+esc(r.name)+'</h3><span class="cmeta">'+esc(r.meta)+'</span><span class="cfoot">'+money(r.cur,r.precio_display)+dchip(r.fecha)+'</span></a>';}
 function rowi(r,acc){var n=Number(r.precio_display).toLocaleString("en-US");var det=esc(r.ses||"")+" "+T("ses")+(r.horas?" · "+esc(r.horas)+" h":"");return '<a class="rowi" style="--ra:'+acc+'" href="'+url(r.slug)+'" target="_blank" rel="noopener"><span class="rdate">'+esc(fEn(r.fecha))+'</span><span class="rname">'+esc(r.name)+'</span><span class="rmeta">'+det+'</span><span class="rprice">'+r.cur+' $'+n+' <span style="font-weight:500;color:var(--muted);font-size:10px">'+T("tax")+'</span></span><span class="rgo">&#8599;</span></a>';}
 var MESN={ene:1,feb:2,mar:3,abr:4,may:5,jun:6,jul:7,ago:8,sep:9,oct:10,nov:11,dic:12};
