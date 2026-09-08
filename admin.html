@@ -268,6 +268,7 @@ if(saved){$("key").value=saved;login();}
   <div><label>Botones</label><input type="color" id="c_deep" value="#0D8A8A" onclick="CTARGET='c_deep';paintTarget()"></div>
   <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;letter-spacing:0;cursor:pointer"><input type="checkbox" id="f_pdfup" checked style="width:16px;height:16px"> Subir el PDF como folleto descargable</label>
   <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;letter-spacing:0;cursor:pointer"><input type="checkbox" id="f_heroimg" checked style="width:16px;height:16px"> Usar la portada del folleto como fondo del hero</label>
+  <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;letter-spacing:0;cursor:pointer"><input type="checkbox" id="f_overwrite" style="width:16px;height:16px"> Regenerar si el curso ya existe (rehace el landing y conserva la liga de Stripe)</label>
  </div>
  <div style="display:flex;gap:12px;margin-top:22px">
   <button class="btn" style="background:#7A4FB8" id="f_go" onclick="forgeCreate()">Crear curso completo</button>
@@ -391,13 +392,13 @@ function forgeCreate(){
  if($("f_heroimg").checked&&PORTADA_B64)c.portada_b64=PORTADA_B64;
  $("f_go").disabled=true;$("f_go").textContent="Creando (30-60 seg)...";
  $("f_res").style.display="none";$("f_err").style.display="none";
- fetch(FORGE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create",key:KEY,curso:c})})
+ fetch(FORGE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create",key:KEY,curso:c,overwrite:$("f_overwrite").checked})})
  .then(function(r){return r.json();}).then(function(d){
   $("f_go").disabled=false;$("f_go").textContent="Crear curso completo";
   if(d.ok){
    $("f_res").innerHTML="<b>Curso creado.</b><br>Landing: <a href=\""+d.landing+"\" target=\"_blank\">"+d.landing+"</a><br>Stripe: <a href=\""+d.stripe+"\" target=\"_blank\">"+d.stripe+"</a><br>PayPal: activo por catalogo<br><span class=\"hint\">"+(d.nota||"")+"</span>";
    $("f_res").style.display="block";load();
-  }else{$("f_err").textContent="Error: "+(d.error||"desconocido");$("f_err").style.display="block";}
+  }else{var msg=d.error||"desconocido";if(/ya existe/i.test(msg))msg="Ese curso ya existe. Marca la casilla «Regenerar si el curso ya existe» y vuelve a darle a Crear.";$("f_err").textContent="Error: "+msg;$("f_err").style.display="block";}
  }).catch(function(e){$("f_go").disabled=false;$("f_go").textContent="Crear curso completo";$("f_err").textContent="Error de red: "+e;$("f_err").style.display="block";});
 }
 function openStats(){
