@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agenda una reunión | RiskMathics Financial Institute</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A1F3C;--ink:#F3F6FA;--soft:#B4C8E6;--acc:#25D366}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Lora',Georgia,serif}
+header{padding:26px 20px 0;text-align:center}
+header img{height:34px}
+header .k{font-family:'Poppins',Arial,sans-serif;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--soft);margin-top:14px}
+h1{font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:clamp(20px,3.4vw,28px);margin:8px auto 0;max-width:760px;line-height:1.25}
+main{padding:28px 20px 60px}
+footer{padding:0 20px 40px;text-align:center;font-size:12px;color:var(--soft);font-family:'Poppins',Arial,sans-serif;letter-spacing:.4px}
+footer a{color:inherit}
+input::placeholder{color:rgba(180,200,230,.7)}
+select option{color:#0A1F3C}
+</style></head><body>
+<header><a href="https://riskmathics.com" target="_blank" rel="noopener"><img src="https://cronograma.riskmathics.com/assets/logo-rm.png" alt="RiskMathics" onerror="this.style.display='none'"></a>
+<div class="k">RiskMathics Financial Institute</div><h1 id="ag-h1">Programa in-company</h1></header>
+<main>
+<div style="max-width:720px;margin:0 auto;border:1px solid rgba(128,128,128,.35);border-radius:8px;padding:34px 30px;">
+<div style="font-family:'Poppins',Arial,sans-serif;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;opacity:.75;">Para tu institución</div>
+<h3 style="font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:22px;margin:10px 0 8px;"><span id="ag-titulo">Agenda 20 minutos con desarrollo de negocio</span></h3>
+<p style="font-family:'Lora',Georgia,serif;font-size:15px;line-height:1.65;margin:0 0 24px;opacity:.9;"><span id="ag-sub">Elige un horario y te llega la invitación con liga de Zoom. Fechas, formato presencial o Virtual Live y propuesta económica para tu institución.</span></p>
+<form id="rm-incompany-form" onsubmit="return rmInCompany(event)" style="display:grid;gap:16px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<input name="nombre" placeholder="Nombre" required autocomplete="given-name" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+<input name="apellido" placeholder="Apellidos" required autocomplete="family-name" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+</div>
+<input type="email" name="email" placeholder="Correo corporativo" required autocomplete="email" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<input name="empresa" placeholder="Institución / Empresa" required autocomplete="organization" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+<input name="puesto" placeholder="Puesto" required autocomplete="organization-title" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<select name="participantes" required style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+<option value="" disabled selected>Participantes estimados</option>
+<option value="5 a 10">5 a 10</option>
+<option value="10 a 20">10 a 20</option>
+<option value="20 a 50">20 a 50</option>
+<option value="Más de 50">Más de 50</option>
+</select>
+<input name="telefono" placeholder="WhatsApp (opcional)" autocomplete="tel" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;">
+</div>
+<label style="display:flex;gap:10px;align-items:flex-start;font-family:'Lora',Georgia,serif;font-size:12.5px;line-height:1.5;opacity:.9;cursor:pointer;"><input type="checkbox" name="privacidad" required style="margin-top:3px;"> Acepto el <a href="https://riskmathics.com/aviso-de-privacidad" target="_blank" rel="noopener" style="color:inherit;">aviso de privacidad</a>.</label>
+<button type="submit" style="font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:12.5px;letter-spacing:1.6px;text-transform:uppercase;padding:16px;border-radius:4px;border:none;background:#25D366;color:#fff;cursor:pointer;">Agendar 20 minutos con desarrollo de negocio</button>
+</form>
+<div id="rm-incompany-out" style="display:none;margin-top:18px;"></div>
+</div>
+
+</main>
+<footer>Informes: <a href="mailto:growth@riskmathics.com">growth@riskmathics.com</a> · WhatsApp <a href="https://wa.me/525519015763">+52 55 1901 5763</a> · +52 55 5536 3597 ext. 2203<br>© 2026 RiskMathics Financial Institute · Learn. Apply. Profit.</footer>
+<script>
+var RM_Q=new URLSearchParams(location.search);
+var RM_CFG={id:RM_Q.get("curso")||"agenda-web",marca:(RM_Q.get("marca")||"")==="wi"?"wi":"",folleto:"",paypal:"",stripe:""};
+var RM_VURL="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/verify-lead";
+var RM_VKEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmZmRzZ3ZnY3Ztb2pvYmZpdWF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzOTQ0NzQsImV4cCI6MjA5MDk3MDQ3NH0.7VKn7st3POLRTLIXx9Y4gRjXbh8v_BKXblc7vFIVu-U";
+var RM_LEAD=null,rmIti=null;
+(function(){var p=RM_Q.get("programa");if(p){document.getElementById('ag-h1').textContent=p;document.title=p+" | Agenda una reunión | RiskMathics";}
+if(RM_CFG.marca==="wi"){document.querySelector('header .k').textContent="Private Wealth Management Institute";}})();
+async function rmPost(p){const r=await fetch(RM_VURL,{method:"POST",headers:{"Content-Type":"application/json","apikey":RM_VKEY,"Authorization":"Bearer "+RM_VKEY},body:JSON.stringify(p)});return r.json();}
+/* ===== Flujo v4 (19-sep-2026, Allan): correo corporativo obligatorio, confirmacion por correo, temario solo al confirmar,
+   WhatsApp para correos personales, opcion in-company con reunion de 20 minutos. Cajas sin colores fijos: heredan el tema. ===== */
+var RM_AURL="https://bffdsgvgcvmojobfiuay.supabase.co/functions/v1/rm-agenda";
+var RM_BTN="font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:12.5px;letter-spacing:1px;text-transform:uppercase;padding:13px;border-radius:4px;text-decoration:none;text-align:center;display:block;cursor:pointer;";
+var RM_CAJA="padding:26px 24px;border-radius:8px;border:1px solid rgba(128,128,128,.35);";
+var RM_P="margin:0 0 14px;font-family:'Lora',Georgia,serif;font-size:15.5px;line-height:1.65;";
+var RM_H="margin:0 0 10px;font-family:'Poppins',Arial,sans-serif;font-weight:700;font-size:18px;";
+var RM_IN="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(128,128,128,.55);padding:10px 2px;font-size:15px;color:inherit;font-family:'Lora',Georgia,serif;outline:none;";
+function rmEsWI(){return (RM_CFG.marca||"")==="wi";}
+function rmMail(c){return (c&&c.correo)||(rmEsWI()?"info@wealthinstitute.com.mx":"growth@riskmathics.com");}
+function rmPrograma(){var h=document.querySelector("h1");var t=((h&&h.textContent)||document.title||"").replace(/\s+/g," ").trim();return t.split("|")[0].trim().slice(0,120);}
+function rmEsc(s){return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function rmCaja(id,despuesDe){var box=document.getElementById(id);if(!box){box=document.createElement('div');box.id=id;var ref=despuesDe||document.getElementById('rm-lead')||document.querySelector('form');if(ref&&ref.parentNode)ref.parentNode.insertBefore(box,ref.nextSibling);else document.body.appendChild(box);}box.style.display="block";return box;}
+function rmContactos(c,asunto,wa,mailto){c=c||{};var waU=wa||c.whatsapp||"https://wa.me/525519015763",waTxt=c.whatsapp_texto||"+52 55 1901 5763",mail=rmMail(c);
+return '<div style="display:grid;gap:10px">'+
+'<a href="'+waU+'" target="_blank" rel="noopener" style="'+RM_BTN+'background:#25D366;color:#fff">WhatsApp '+waTxt+'</a>'+
+'<a href="'+(mailto||("mailto:"+mail+"?subject="+encodeURIComponent(asunto||("Informes: "+rmPrograma()))))+'" style="'+RM_BTN+'border:1.5px solid currentColor;color:inherit">'+mail+'</a>'+
+'<a href="tel:+525555363597" style="'+RM_BTN+'border:1.5px solid currentColor;color:inherit">+52 55 5536 3597 ext. 2203</a></div>';}
+function rmMostrar(box){try{box.scrollIntoView({behavior:"smooth",block:"center"});}catch(_){box.scrollIntoView();}try{todoContraste&&todoContraste();}catch(_){}}
+async function rmSubmit(e){e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));
+if(!f.privacidad||!f.privacidad.checked){alert("Debes aceptar el Aviso de Privacidad para continuar.");return false;}
+var phone="";if(window.rmIti){try{phone=rmIti.getNumber()||"";}catch(_){phone="";}}
+if(!phone){phone=(d.whatsapp||"").trim().replace(/[\s\-()]/g,"");if(phone&&!phone.startsWith("+"))phone="+52"+phone.replace(/^0+/,"");}
+d.phone=phone;d.apellido=((d.apellido_paterno||"")+" "+(d.apellido_materno||"")).trim()||d.apellido||"";
+var so=f.pais&&f.pais.options&&f.pais.options[f.pais.selectedIndex];d.pais=(so&&so.text)||d.pais||"";d.pais_iso=((so&&so.dataset&&so.dataset.iso)||"").toUpperCase();
+d.curso=RM_CFG.id;d.marca=RM_CFG.marca||"";d.folleto=RM_CFG.folleto||"";d.curso_nombre=rmPrograma();d.url=location.href.split("#")[0];d.privacidad=true;RM_LEAD=d;
+const b=f.querySelector('button[type=submit]');const txt=b?b.textContent:"";if(b){b.textContent="ENVIANDO...";b.disabled=true;}let res;
+try{res=await rmPost(Object.assign({action:"start"},d));}catch(_){res={};}
+if(b){b.textContent=txt;b.disabled=false;}
+if(res&&res.need_corporate){rmCorporativo(res,rmCaja('rm-verify',f));return false;}
+if(res&&res.ok){f.style.display="none";rmEspera(res);return false;}
+alert((res&&res.error)||("No pudimos registrar tus datos. Escríbenos a "+rmMail()+" o por WhatsApp al +52 55 1901 5763"));return false;}
+/* Correo personal: sin temario; la persona nos escribe por WhatsApp o correo con sus datos y por que le interesa. */
+function rmCorporativo(res,box){res=res||{};box=box||rmCaja('rm-verify');
+box.innerHTML='<div style="'+RM_CAJA+'">'+
+'<p style="'+RM_H+'">Necesitamos tu correo corporativo o institucional.</p>'+
+'<p style="'+RM_P+'">Para enviarte el temario de <b>'+rmEsc(res.programa||rmPrograma())+'</b> el registro debe ser con correo de empresa o institución.</p>'+
+'<p style="'+RM_P+'">Si no cuentas con uno, escríbenos por WhatsApp o por correo con tu nombre, puesto, institución y por qué te interesa el programa, o si lo tomarías por tu cuenta. Coordinación académica te atiende.</p>'+
+rmContactos(res.contacto,null,res.whatsapp,res.mailto)+
+'<p style="margin:16px 0 0;font-size:12px;font-family:\'Lora\',Georgia,serif;font-style:italic;text-align:center;opacity:.8">O corrige tu correo arriba e intenta de nuevo.</p></div>';
+rmMostrar(box);}
+/* Correo corporativo: "ve a tu bandeja" con la liga, y el codigo como alternativa en la misma pagina. */
+function rmEspera(res,box){res=res||{};box=box||rmCaja('rm-verify');var email=rmEsc(res.email||(RM_LEAD&&RM_LEAD.email)||"");
+box.innerHTML='<div style="'+RM_CAJA+'">'+
+'<p style="'+RM_H+'">Revisa tu bandeja de entrada.</p>'+
+(res.correo_enviado===false?
+ '<p style="'+RM_P+'">Registramos tus datos, pero no pudimos enviar el correo de confirmación a <b>'+email+'</b>. Escríbenos y te mandamos el temario:</p>'+rmContactos(res.contacto):
+ '<p style="'+RM_P+'">Enviamos un correo a <b>'+email+'</b> con la liga para confirmar tu correo y descargar el temario. Si prefieres, escribe aquí el código de 6 dígitos que viene en ese correo:</p>'+
+ '<div style="margin-bottom:18px"><input id="rm-otp-email" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="'+RM_IN+'font-size:22px;letter-spacing:8px;font-family:\'Poppins\',Arial,sans-serif;text-align:center"></div>'+
+ '<button type="button" onclick="rmVerify()" style="'+RM_BTN+'width:100%;border:none;background:#25D366;color:#fff">Confirmar y recibir el temario</button>'+
+ '<p id="rm-vmsg" style="font-size:12px;margin:10px 0 0;font-family:\'Lora\',Georgia,serif;min-height:16px"></p>'+
+ '<p style="'+RM_P+'margin-top:16px;font-size:13px;opacity:.85">¿No te llegó? Revisa la carpeta de no deseados o escríbenos:</p>'+rmContactos(res.contacto))+
+'</div>';
+rmMostrar(box);var i=document.getElementById('rm-otp-email');if(i)i.focus();}
+async function rmVerify(){var ecode=((document.getElementById('rm-otp-email')||{}).value||"").trim();var m=document.getElementById('rm-vmsg');
+if(ecode.length<6){if(m)m.textContent="Escribe el código de 6 dígitos que te enviamos por correo.";return;}
+if(m)m.textContent="Verificando...";var res;
+try{res=await rmPost(Object.assign({},RM_LEAD||{},{action:"check",email_code:ecode,curso:RM_CFG.id,marca:RM_CFG.marca||"",folleto:RM_CFG.folleto||"",curso_nombre:rmPrograma()}));}catch(_){res={};}
+if(res&&res.verified){rmGracias(res);}else if(m){m.textContent=(res&&res.error)||"Código incorrecto o vencido. Intenta de nuevo.";}}
+/* Confirmado: texto final de Allan + temario. */
+function rmGracias(res,box,form){res=res||{};box=box||rmCaja('rm-verify');var f=form||document.getElementById('rm-lead');if(f)f.style.display="none";var th=document.getElementById('rm-thanks');if(th)th.style.display="none";
+var folleto=res.folleto||RM_CFG.folleto||"";
+box.innerHTML='<div style="'+RM_CAJA+'">'+
+'<p style="'+RM_H+'">Listo, recibimos tus datos.</p>'+
+'<p style="'+RM_P+'">En breve se pondrán en contacto contigo de coordinación académica. Saludos cordiales.</p>'+
+(folleto?'<a href="'+folleto+'" target="_blank" rel="noopener" style="'+RM_BTN+'border:none;background:#25D366;color:#fff;margin-bottom:12px">Descargar el temario</a>':
+ '<p style="'+RM_P+'font-size:13.5px;opacity:.85">El temario te llega por correo de coordinación académica.</p>')+
+rmContactos(res.contacto)+'</div>';
+rmMostrar(box);if(folleto){try{window.open(folleto,'_blank');}catch(_){}}}
+/* Regreso desde la liga del correo: ?confirmado=1 */
+(function(){if(/[?&]confirmado=1(&|$)/.test(location.search)){var t=setInterval(function(){var f=document.getElementById('rm-lead')||document.querySelector('form');if(!f&&document.readyState!=="complete")return;clearInterval(t);rmGracias({folleto:RM_CFG.folleto||""});},150);}})();
+/* ===== In-company: registro + 20 minutos con desarrollo de negocio (rm-agenda, calendario real) ===== */
+async function rmAgenda(p){const r=await fetch(RM_AURL,{method:"POST",headers:{"Content-Type":"application/json","apikey":RM_VKEY,"Authorization":"Bearer "+RM_VKEY},body:JSON.stringify(p)});return r.json();}
+var RM_IC=null;
+async function rmInCompany(e){e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));const out=document.getElementById('rm-incompany-out');
+if(!f.privacidad||!f.privacidad.checked){alert("Debes aceptar el Aviso de Privacidad para continuar.");return false;}
+d.curso=RM_CFG.id;d.marca=RM_CFG.marca||"";d.curso_nombre=rmPrograma();d.url=location.href.split("#")[0];d.privacidad=true;d.telefono=(d.telefono||"").trim();RM_IC=d;
+const b=f.querySelector('button[type=submit]');const txt=b?b.textContent:"";if(b){b.textContent="ENVIANDO...";b.disabled=true;}let res;
+try{res=await rmPost(Object.assign({action:"incompany"},d));}catch(_){res={};}
+if(b){b.textContent=txt;b.disabled=false;}
+if(res&&res.need_corporate){rmCorporativo(res,out);return false;}
+if(!(res&&res.ok)){alert((res&&res.error)||("No pudimos registrar tus datos. Escríbenos a "+rmMail()+" o por WhatsApp al +52 55 1901 5763"));return false;}
+f.style.display="none";out.style.display="block";
+out.innerHTML='<div style="'+RM_CAJA+'"><p style="'+RM_H+'">Listo, recibimos tus datos.</p><p style="'+RM_P+'">Buscando horarios disponibles con desarrollo de negocio...</p></div>';
+/* Huecos de TODO el equipo de ventas (Allan: "los Calendlys de todos"): la persona asignada al programa va primero y los dias se reparten entre personas. */
+var casoA=res.agenda_caso||"incompany",casos=(res.agenda_casos&&res.agenda_casos.length)?res.agenda_casos:[casoA];var h={};
+try{h=await rmAgenda({accion:"huecos_todos",casos:casos,cuantos:3});}catch(_){h={};}
+var ops=(h&&h.opciones)||[];
+if(!ops.length){out.innerHTML='<div style="'+RM_CAJA+'"><p style="'+RM_H+'">Listo, recibimos tus datos.</p><p style="'+RM_P+'">Desarrollo de negocio te contacta hoy mismo para agendar la reunión. Si prefieres, escríbenos directo:</p>'+rmContactos(res.contacto,"Programa in-company: "+rmPrograma())+'</div>';rmMostrar(out);return false;}
+RM_IC.caso=casoA;RM_IC.contacto=res.contacto;
+out.innerHTML='<div style="'+RM_CAJA+'"><p style="'+RM_H+'">Elige tu horario.</p><p style="'+RM_P+'">20 minutos por Zoom con desarrollo de negocio (hora de la Ciudad de México). Te llega la invitación con la liga a <b>'+rmEsc(d.email)+'</b>.</p><div style="display:grid;gap:10px">'+
+ops.map(function(o){return '<button type="button" onclick="rmAgendar(\''+o.inicia+'\',\''+o.termina+'\',\''+(o.caso||casoA)+'\')" style="'+RM_BTN+'border:1.5px solid currentColor;background:transparent;color:inherit;width:100%">'+rmEsc(o.humano||o.inicia)+(o.persona?' · '+rmEsc(o.persona):'')+'</button>';}).join("")+
+'</div><p id="rm-ic-msg" style="font-size:12px;margin:12px 0 0;font-family:\'Lora\',Georgia,serif;min-height:16px"></p></div>';
+rmMostrar(out);return false;}
+async function rmAgendar(inicia,termina,caso){var out=document.getElementById('rm-incompany-out'),m=document.getElementById('rm-ic-msg');if(m)m.textContent="Agendando...";var d=RM_IC||{};var r={};if(caso)d.caso=caso;
+try{r=await rmAgenda({accion:"agendar",caso:d.caso||"incompany",inicia:inicia,termina:termina,cliente_nombre:((d.nombre||"")+" "+(d.apellido||"")).trim(),cliente_email:d.email,cliente_empresa:d.empresa,cliente_puesto:d.puesto,cliente_tel:d.telefono,programa:rmPrograma(),participantes:d.participantes});}catch(_){r={};}
+if(r&&r.agendado){out.innerHTML='<div style="'+RM_CAJA+'"><p style="'+RM_H+'">Reunión agendada'+(r.persona?' con '+rmEsc(r.persona):'')+'.</p><p style="'+RM_P+'">'+rmEsc(r.decir_al_cliente||("Te enviamos la invitación a "+d.email+". Quedamos el "+(r.cuando||"")+" (hora de la Ciudad de México), 20 minutos por "+(r.plataforma||"Zoom")+"."))+'</p>'+(r.meet?'<a href="'+r.meet+'" target="_blank" rel="noopener" style="'+RM_BTN+'border:1.5px solid currentColor;color:inherit">Liga de '+rmEsc(r.plataforma||"Zoom")+'</a>':'')+'</div>';rmMostrar(out);return;}
+if(r&&r.motivo==="horario_ocupado"&&r.nuevas&&r.nuevas.length){if(m)m.textContent="Ese horario se acaba de ocupar. Elige otro:";var g=out.querySelector('div[style*="grid"]');if(g)g.innerHTML=r.nuevas.map(function(o){return '<button type="button" onclick="rmAgendar(\''+o.inicia+'\',\''+o.termina+'\')" style="'+RM_BTN+'border:1.5px solid currentColor;background:transparent;color:inherit;width:100%">'+rmEsc(o.humano||o.inicia)+'</button>';}).join("");return;}
+if(m)m.textContent="No pudimos agendar en automático; desarrollo de negocio te contacta hoy mismo para confirmar la reunión.";}
+
+/* la pagina de agenda fuerza la persona elegida (?con=) o todo el equipo, y toma el programa del titulo */
+(function(){var con=RM_Q.get("con");if(!con)return;var viejo=rmInCompany;window.rmInCompany=async function(e){e.preventDefault();var f=e.target;var orig=rmPost;window.rmPost=async function(p){var r=await orig(p);if(r&&r.ok&&r.incompany){r.agenda_caso=con;r.agenda_casos=[con];}return r;};try{return await viejo(e);}finally{window.rmPost=orig;}};})();
+</script>
+</body></html>
