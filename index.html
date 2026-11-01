@@ -142,8 +142,8 @@ footer{margin-top:72px;background:#140A09;border-top:1px solid var(--hair);color
  <p class="lede" id="p-tagline">Learning from the Best</p>
  <div class="counts">
   <div><div class="n" id="cnt">165</div><div class="l">Programas</div></div>
-  <div><div class="n">13</div><div class="l">Insignia</div></div>
-  <div><div class="n">4</div><div class="l">Series por módulo</div></div>
+  <div><div class="n" id="cnt-exec">23</div><div class="l">Executive Programs</div></div>
+  <div><div class="n">4</div><div class="l">Divisiones</div></div>
   <div><div class="n">2026·27</div><div class="l">Calendario</div></div>
  </div>
 </div></section>
@@ -236,7 +236,7 @@ function render(){
  html+=sec("conf",T("Conferencia"),T("sub_Conferencia"),conf,"gridauto","s-cert","cert");
  html+=sec("cursos",T("Curso"),T("sub_Curso"),cursos,"rows","");
  document.getElementById("cat").innerHTML=html;
- var c=document.getElementById("cnt");if(c)c.textContent=rows.length;
+ var c=document.getElementById("cnt");if(c)c.textContent=rows.length;var ce=document.getElementById("cnt-exec");if(ce)ce.textContent=rows.filter(function(r){return tipoDe(r)==="Executive";}).length;
  if(CFG.titulo)document.getElementById("p-titulo").textContent=CFG.titulo;
  if(CFG.tagline)document.getElementById("p-tagline").textContent=CFG.tagline;
  if(CFG.ciclo)document.getElementById("p-ciclo").textContent=CFG.ciclo;
